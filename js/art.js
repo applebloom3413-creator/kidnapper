@@ -87,9 +87,12 @@ function lollipopKidSprite(frame) {
   p.rect(7, 30 + Math.min(0, hop + 1), 3, 4, '#2c2a40').rect(12, 30 + Math.min(0, hop + 1), 3, 4, '#2c2a40');
   p.rect(6, 34, 4, 2, INK).rect(12, 34, 4, 2, INK);
   for (let y = 0; y < 10; y++) p.rect(6, 20 + y + hop, 10, 1, y % 3 < 2 ? shirtA : shirtB);
-  p.ellipse(11, 15 + hop, 5.5, 5.5, '#2a2030');                    // face lost in shadow
-  p.line(8, 17 + hop, 10, 18 + hop, '#f0ece0').line(10, 18 + hop, 13, 18 + hop, '#f0ece0').line(13, 18 + hop, 15, 16 + hop, '#f0ece0');
-  p.set(9, 14 + hop, '#f0ece0').set(13, 14 + hop, '#f0ece0');      // two pinprick eyes
+  const skin = '#d9a882';
+  p.ellipse(11, 15 + hop, 5.5, 5.5, skin);
+  p.rect(5, 9 + hop, 12, 6, '#b08068', skin);                       // soft shade under the hat brim
+  p.set(9, 15 + hop, '#2a1a20').set(13, 15 + hop, '#2a1a20');       // eyes
+  p.line(9, 18 + hop, 13, 18 + hop, '#8a4040').set(8, 17 + hop, '#8a4040').set(14, 17 + hop, '#8a4040');
+  p.set(7, 16 + hop, '#e89a8a').set(15, 16 + hop, '#e89a8a');       // rosy cheeks
   // arm holding the lollipop up
   p.line(16, 22 + hop, 18, 16 + hop, shirtA).line(17, 22 + hop, 19, 16 + hop, shirtA);
   p.line(19, 15 + hop, 19, 8 + hop, '#e8e0d0');

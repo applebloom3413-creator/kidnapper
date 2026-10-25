@@ -158,9 +158,15 @@ function drawKidCloseup() {
   if (Talk.show <= 0) return;
   const bob = Math.round(Math.sin(G.frame / 12) * 2);
   const x = 160, top = 70 + bob + Math.round((1 - Talk.show) * 20);
-  // small body in a striped shirt, face lost in shadow under the hat
+  // small body in a striped shirt; his eyes are hidden in the shadow of the hat
   for (let y = 0; y < 60; y++) { ctx.fillStyle = y % 9 < 6 ? '#3a1a22' : '#4a3a36'; ctx.fillRect(x - 26, top + 46 + y, 52, 1); }
-  ctx.fillStyle = '#0c0a12'; ctx.beginPath(); ctx.ellipse(x, top + 28, 22, 22, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(x, top + 28, 22, 22, 0, 0, Math.PI * 2); ctx.clip();
+  ctx.fillStyle = '#c89474'; ctx.fillRect(x - 22, top + 6, 44, 44);
+  ctx.fillStyle = '#e0a898'; ctx.fillRect(x - 17, top + 32, 6, 4); ctx.fillRect(x + 11, top + 32, 6, 4);   // rosy cheeks
+  ctx.fillStyle = '#7a5050'; ctx.fillRect(x - 22, top + 25, 44, 3);                                          // soft edge of the shadow
+  ctx.fillStyle = '#3a2830'; ctx.fillRect(x - 22, top + 6, 44, 20);                                          // the hat's shadow
+  ctx.restore();
   // the lollipop
   ctx.fillStyle = '#e8e0d0'; ctx.fillRect(x + 36, top + 20, 2, 50);
   ctx.fillStyle = '#e84868'; ctx.beginPath(); ctx.arc(x + 37, top + 14, 9, 0, Math.PI * 2); ctx.fill();
@@ -215,10 +221,11 @@ function drawTalk() {
       const bob = Math.round(Math.sin(G.frame / 12) * 2);
       const top = 70 + bob + rise;
       ctx.drawImage(ART.masks.partyhat, 160 - 24, top - 60);
-      // two pinprick eyes and a grin that's a little too big
-      ctx.fillStyle = '#f0ece0';
-      ctx.fillRect(151, top + 24, 2, 2); ctx.fillRect(167, top + 24, 2, 2);
-      for (let i = 0; i < 22; i++) ctx.fillRect(149 + i, top + 33 + Math.round(Math.sin(i / 21 * Math.PI) * 4), 1, 1);
+      // two eyes glinting in the shadow, and a small, sweet smile
+      ctx.fillStyle = '#f6efe0';
+      ctx.fillRect(151, top + 20, 2, 2); ctx.fillRect(167, top + 20, 2, 2);
+      ctx.fillStyle = '#7a3434';
+      for (let i = 0; i < 11; i++) ctx.fillRect(155 + i, top + 37 + Math.round(Math.sin(i / 10 * Math.PI) * 2), 1, 1);
     }
     ctx.globalAlpha = 1;
   }
