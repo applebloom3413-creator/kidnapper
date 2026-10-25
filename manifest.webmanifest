@@ -1,0 +1,13 @@
+{
+  "name": "Kidnapper",
+  "short_name": "Kidnapper",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#050408",
+  "theme_color": "#050408",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

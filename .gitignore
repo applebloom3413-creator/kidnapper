@@ -1,0 +1,5 @@
+# reference photos (has real people in them, never publish)
+ref/
+# dev screenshots
+snapshots/
+.claude/

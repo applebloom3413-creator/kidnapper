@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Kidnapper</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kidnapper">
+<meta name="theme-color" content="#050408">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root { --bg: #08060c; --btn: #18141f; --btn-hi: #241e2e; --ink: #6a6078; --red: #6a1c22; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden; background: var(--bg);
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  #console {
+    position: fixed; inset: 0;
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    display: grid; grid-template-rows: auto 1fr; grid-template-areas: "screen" "controls"; gap: 10px;
+    max-width: 560px; margin: 0 auto;
+  }
+  #screen-wrap { grid-area: screen; width: 100%; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; }
+  #display { display: block; image-rendering: pixelated; image-rendering: crisp-edges; background: #000; box-shadow: 0 0 0 1px #1c1824, 0 0 40px #000; }
+  #controls { grid-area: controls; position: relative; min-height: 200px; }
+  #dpad { position: absolute; left: 4%; top: calc(50% - 75px); width: 150px; height: 150px; touch-action: none; }
+  #dpad .arm { position: absolute; background: var(--btn); border-radius: 6px; box-shadow: inset 0 1px 0 var(--btn-hi), 0 3px 0 #000; }
+  #dpad .h { left: 0; right: 0; top: 50px; height: 50px; }
+  #dpad .v { top: 0; bottom: 0; left: 50px; width: 50px; }
+  #dpad .tick { position: absolute; width: 0; height: 0; border: 7px solid transparent; opacity: .5; }
+  #dpad .tick.up { left: 68px; top: 10px; border-bottom-color: var(--ink); }
+  #dpad .tick.down { left: 68px; bottom: 10px; border-top-color: var(--ink); }
+  #dpad .tick.left { top: 68px; left: 10px; border-right-color: var(--ink); }
+  #dpad .tick.right { top: 68px; right: 10px; border-left-color: var(--ink); }
+  #dpad[data-dir="up"] .tick.up, #dpad[data-dir="down"] .tick.down,
+  #dpad[data-dir="left"] .tick.left, #dpad[data-dir="right"] .tick.right { opacity: 1; border-color: transparent; }
+  #dpad[data-dir="up"] .tick.up { border-bottom-color: #b0a0c0; }
+  #dpad[data-dir="down"] .tick.down { border-top-color: #b0a0c0; }
+  #dpad[data-dir="left"] .tick.left { border-right-color: #b0a0c0; }
+  #dpad[data-dir="right"] .tick.right { border-left-color: #b0a0c0; }
+  .round {
+    position: absolute; width: 68px; height: 68px; border-radius: 50%;
+    background: var(--btn); color: #8a7c98; font-weight: 800; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 2px 0 var(--btn-hi), 0 4px 0 #000; touch-action: none;
+  }
+  #btn-a { right: 4%; top: calc(50% - 90px); color: #c06068; box-shadow: inset 0 2px 0 #3a1c24, 0 4px 0 #000, 0 0 0 2px var(--red); }
+  #btn-b { right: calc(4% + 80px); top: calc(50% - 46px); }
+  .round.on { transform: translateY(3px); box-shadow: inset 0 2px 0 var(--btn-hi); }
+  .pill {
+    position: absolute; top: calc(50% + 80px); left: 50%; transform: translateX(-50%);
+    width: 80px; height: 24px; border-radius: 12px; background: var(--btn); color: var(--ink);
+    font-size: 10px; font-weight: 800; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 0 #000;
+  }
+  .pill.on { transform: translateX(-50%) translateY(2px); box-shadow: none; }
+  #keys { display: none; color: #6a6078; font-size: 13px; text-align: center; line-height: 1.6; }
+  #keys b { color: #b8acc8; }
+
+  /* sideways phone: screen in the middle, controls either side */
+  @media (orientation: landscape) and (max-height: 520px) {
+    #console { max-width: none; grid-template-columns: 1fr auto 1fr; grid-template-rows: 1fr; grid-template-areas: "left screen right"; align-items: center; }
+    /* leave room on both sides for the thumbs */
+    #screen-wrap { height: auto; width: min(calc(100vw - 340px), calc((100vh - 28px) * 16 / 9)); }
+    #controls { display: contents; }
+    #dpad { position: relative; grid-area: left; left: 0; top: 0; justify-self: center; }
+    #right-btns { grid-area: right; position: relative; width: 156px; height: 180px; justify-self: center; }
+    #btn-a { right: 6px; top: 20px; }
+    #btn-b { right: 84px; top: 64px; }
+    .pill { top: auto; bottom: 0; }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    #console { max-width: 1000px; }
+    #controls > *:not(#keys) { display: none; }
+    #keys { display: block; padding-top: 6px; }
+    #controls { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="console">
+  <div id="screen-wrap"><canvas id="display" width="320" height="180"></canvas></div>
+  <div id="controls">
+    <div id="dpad">
+      <div class="arm h"></div><div class="arm v"></div>
+      <div class="tick up"></div><div class="tick down"></div><div class="tick left"></div><div class="tick right"></div>
+    </div>
+    <div id="right-btns">
+      <div class="round" id="btn-a" data-btn="a">A</div>
+      <div class="round" id="btn-b" data-btn="b">B</div>
+      <div class="pill" data-btn="start">START</div>
+    </div>
+    <div id="keys"><b>Arrow keys</b> walk &nbsp;·&nbsp; <b>Z</b> = A (knock / talk) &nbsp;·&nbsp; <b>X</b> = B (hold to hurry) &nbsp;·&nbsp; <b>Enter</b> = START</div>
+  </div>
+</div>
+<script src="js/pixel.js"></script>
+<script src="js/font.js"></script>
+<script src="js/core.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/light.js"></script>
+<script src="js/art.js"></script>
+<script src="js/street.js"></script>
+<script src="js/talk.js"></script>
+<script src="js/story.js"></script>
+<script src="js/main.js"></script>
+<script>if (location.search.includes('dev')) document.write('<script src="tools/dev.js"><\/script>');</script>
+</body>
+</html>
