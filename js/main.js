@@ -47,7 +47,7 @@ function drawTitle() {
   Light.lights = [{ x: 160, y: 60, r: 90, i: 0.5 + flick * 0.2, color: [140, 200, 110], flicker: 2 }];
   Light.ambient = 0.6;
   Light.draw(G.frame);
-  drawBig('KIDNAPPER', 'center', 98, '#c8c0b0', 3, '#2a0808');
+  drawBig('SEARCH PARTY', 'center', 98, '#c8c0b0', 3, '#2a0808');
   centerText('CHAPTER 1', 136, '#8a6a5a');
   if (Title.menu) {
     Title.menu.forEach((o, i) => {

@@ -1,4 +1,6 @@
-# Kidnapper — Chapter 1
+# Search Party — Chapter 1
+
+(Also known, to its creator, as "the kidnapper game.")
 
 A creepy little side-view mystery game. Kids have been going missing on Hollow Lane,
 and you're the officer knocking on every door to find out who's lying.

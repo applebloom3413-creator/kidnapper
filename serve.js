@@ -28,4 +28,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(data);
   });
-}).listen(8643, () => console.log('Kidnapper running at http://localhost:8643'));
+}).listen(8643, () => console.log('Search Party running at http://localhost:8643'));
