@@ -13,7 +13,7 @@ everything else is drawn in code. No downloads, no build step.
 node serve.js
 ```
 
-Then open http://localhost:8643. Arrow keys walk, **Z** = A (knock / talk), **X** = B (hold to hurry).
+Then open http://localhost:8643. Arrow keys walk, **A** knocks / talks, hold **B** to hurry.
 
 ## Where things live
 

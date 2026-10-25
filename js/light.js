@@ -32,7 +32,7 @@ const Light = {
     const vx = v.getContext('2d'), vim = vx.createImageData(W, H);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const dx = (x - W / 2) / (W / 2), dy = (y - H / 2) / (H / 2);
-      const d = Math.max(0, Math.sqrt(dx * dx * 0.8 + dy * dy) - 0.55) * 1.4;
+      const d = Math.max(0, Math.sqrt(dx * dx * 0.8 + dy * dy) - 0.45) * 1.55;
       const a = Math.min(1, d * d);
       const i = (y * W + x) * 4;
       vim.data[i] = 4; vim.data[i + 1] = 2; vim.data[i + 2] = 10;
@@ -97,9 +97,41 @@ const Light = {
     ctx.drawImage(this._cv, 0, 0);
   },
 
-  // grain + vignette, drawn last over everything
+  glitch: 0,          // frames of screen-tearing left to show
+  glitchChance: 0,    // chance per frame of a random glitch (scenes turn this up)
+  tint: [212, 222, 204],
+
+  // colour grade, scanlines, flicker, glitches, grain + vignette: drawn last over everything
   post(frame) {
+    // drain some colour and push everything toward a sickly green-grey
+    ctx.globalCompositeOperation = 'saturation';
+    ctx.globalAlpha = 0.26; ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 1; ctx.fillStyle = `rgb(${this.tint.join(',')})`; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    // the picture tears sideways now and then
+    if (this.glitch <= 0 && Math.random() < this.glitchChance) this.glitch = rand(3, 8);
+    if (this.glitch > 0) {
+      this.glitch--;
+      for (let i = 0; i < 3; i++) {
+        const y = rand(0, H - 12), h = rand(2, 10), dx = rand(-8, 8);
+        ctx.drawImage(screen, 0, y, W, h, dx, y, W, h);
+      }
+      ctx.globalAlpha = 0.08; ctx.fillStyle = '#ff2040'; ctx.fillRect(0, rand(0, H), W, rand(1, 3)); ctx.globalAlpha = 1;
+    }
+    // old-film flicker
+    ctx.globalAlpha = 0.02 + Math.random() * 0.035; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+    ctx.drawImage(this.scanlines, 0, 0);
     ctx.drawImage(this.vignette, 0, 0);
     ctx.drawImage(this.grain[Math.floor(frame / 3) % 4], 0, 0);
   },
 };
+
+// faint scanlines, like an old TV
+(() => {
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = 'rgba(0,0,0,0.11)';
+  for (let y = 0; y < H; y += 3) x.fillRect(0, y, W, 1);
+  Light.scanlines = c;
+})();

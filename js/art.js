@@ -195,6 +195,17 @@ function housePix(o) {
   p.rect(8, 40, w - 16, h - 40, o.wall);
   for (let y = 44; y < h; y += 4) p.rect(8, y, w - 16, 1, wallDk);
   if (o.peeling) { const r = seeded(5); for (let i = 0; i < 40; i++) p.rect(10 + Math.floor(r() * (w - 22)), 42 + Math.floor(r() * (h - 44)), rand(2, 5), 1, shade(o.wall, 0.25)); }
+  // water stains running down from the roof, and dirt splashed up from the ground.
+  // (Oliver's house is the only one on the street that's spotless.)
+  if (!o.clean) {
+    const g = seeded(w * 7 + o.wall.charCodeAt(2));
+    for (let i = 0; i < 16; i++) {
+      const x = 10 + Math.floor(g() * (w - 20)), len = 6 + Math.floor(g() * 34);
+      p.line(x, 44, x + (g() < 0.3 ? 1 : 0), 44 + len, shade(o.wall, -0.3));
+      if (g() < 0.5) p.line(x + 1, 44, x + 1, 44 + len * 0.5, shade(o.wall, -0.18));
+    }
+    for (let x = 8; x < w - 8; x++) { const hg = 2 + Math.floor(g() * 7); p.rect(x, h - hg, 1, hg, shade(o.wall, -0.42)); }
+  }
   // roof
   const sag = o.sag ? 4 : 0;
   p.poly([0, 44, 18, 8 + sag, w / 2, 6 + sag * 1.5, w - 18, 8, w, 44], o.roof);

@@ -141,5 +141,15 @@ const Audio = {
     this.tone(NOTE(81), 2.5, 'sine', 0.03, -20);
   },
   thud() { this.tone(60, 0.5, 'sine', 0.5, -30); this.noiseHit(0.3, 150, 0.4); },
+  heartbeat(vol) {
+    this.tone(58, 0.16, 'sine', vol, -18);
+    this.tone(52, 0.18, 'sine', vol * 0.8, -16, 0.22);
+  },
+  caw() {
+    for (let i = 0; i < 2; i++) {
+      this.tone(720, 0.22, 'sawtooth', 0.03, -260, i * 0.32);
+      this.noiseHit(0.2, 1400, 0.05, i * 0.32, 'bandpass');
+    }
+  },
   doorbell() { this.tone(NOTE(76), 0.9, 'sine', 0.08); this.tone(NOTE(72), 1.2, 'sine', 0.08, 0, 0.45); },
 };

@@ -25,10 +25,10 @@ const Input = {
 };
 
 const KEYMAP = {
+  // the on-screen prompts say "A" and "B", so the A and B keys do exactly that
   ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
-  KeyW: 'up', KeyS: 'down', KeyA: 'left', KeyD: 'right',
-  KeyZ: 'a', KeyJ: 'a', Space: 'a', KeyE: 'a',
-  KeyX: 'b', KeyK: 'b', ShiftLeft: 'b', Backspace: 'b', Escape: 'b',
+  KeyA: 'a', KeyZ: 'a', Space: 'a', KeyE: 'a',
+  KeyB: 'b', KeyX: 'b', ShiftLeft: 'b', ShiftRight: 'b', Backspace: 'b', Escape: 'b',
   Enter: 'start',
 };
 addEventListener('keydown', e => { const b = KEYMAP[e.code]; if (b) { Input.down(b); e.preventDefault(); } });

@@ -200,7 +200,12 @@ addEventListener('orientationchange', () => setTimeout(fitDisplay, 250));
 
 function bindButton(el, btn) {
   const up = () => { Input.up(btn); el.classList.remove('on'); };
-  el.addEventListener('pointerdown', e => { e.preventDefault(); el.setPointerCapture(e.pointerId); Input.down(btn); el.classList.add('on'); });
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    // register the press first; capturing the finger is nice-to-have and can fail on a quick tap
+    Input.down(btn); el.classList.add('on');
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}
+  });
   el.addEventListener('pointerup', up);
   el.addEventListener('pointercancel', up);
   el.addEventListener('lostpointercapture', up);
@@ -221,7 +226,7 @@ function bindDpad(el) {
     if (Math.hypot(x, y) < r.width * 0.12) return cur;
     return Math.abs(x) > Math.abs(y) ? (x < 0 ? 'left' : 'right') : (y < 0 ? 'up' : 'down');
   };
-  el.addEventListener('pointerdown', e => { e.preventDefault(); el.setPointerCapture(e.pointerId); set(fromEvent(e)); });
+  el.addEventListener('pointerdown', e => { e.preventDefault(); set(fromEvent(e)); try { el.setPointerCapture(e.pointerId); } catch (err) {} });
   el.addEventListener('pointermove', e => { if (cur) set(fromEvent(e)); });
   const end = () => set(null);
   el.addEventListener('pointerup', end);

@@ -9,7 +9,7 @@ const STREET = {
     { id: 'ozzie',     x: 236, wall: '#9a88b0', roof: '#4a3858', door: '#e8d8e0', windows: 'lit', flowers: true },
     { id: 'oldman',    x: 446, wall: '#6a7266', roof: '#2c2a2a', door: '#3a3028', windows: 'curtains', lamp: 'off', peeling: true, sag: true, missingShingles: true },
     { id: 'jeffery',   x: 656, wall: '#c8b878', roof: '#504838', door: '#7a6a50', windows: 'dark', lamp: 'flicker' },
-    { id: 'kidnapper', x: 866, wall: '#e0d4b8', roof: '#3c5030', door: '#3c5a2c', windows: 'lit', chimney: true, basement: true },
+    { id: 'kidnapper', x: 866, wall: '#e0d4b8', roof: '#3c5030', door: '#3c5a2c', windows: 'lit', chimney: true, basement: true, clean: true },
   ],
   lamps: [176, 600, 1010, 1240],
   poles: [210, 640, 1080],
@@ -21,7 +21,42 @@ const Street = {
   layer: null, far: null, lights: [], prompts: [],
   moths: [],
   watcher: false,       // someone standing in the Kidnapper's window
+  crow: { x: 760, cawed: false },
+  fog: null, beatT: 0,
 };
+
+// a crow perched on the power line
+function crowPix(facing) {
+  const p = new Pix(10, 9);
+  const c = '#08070a';
+  p.ellipse(5, 5, 3.5, 2.5, c).ellipse(7.5, 3, 2, 2, c);
+  p.poly([1, 4, -1, 7, 3, 6], c).line(9, 3, 10, 3, '#3a3020');
+  p.set(8, 2, '#c8b040');
+  p.line(4, 7, 4, 8, '#201c18').line(6, 7, 6, 8, '#201c18');
+  return facing < 0 ? p.flipX() : p;
+}
+
+// low fog that drifts along the street, in soft dithered clumps
+function fogPix() {
+  const w = 640, h = 46;
+  const p = new Pix(w, h);
+  const r = seeded(21);
+  const blobs = [];
+  for (let i = 0; i < 70; i++) blobs.push([r() * w, 14 + r() * 26, 20 + r() * 40, 5 + r() * 9]);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let d = 0;
+    for (const [bx, by, rx, ry] of blobs) {
+      for (const ox of [0, -w, w]) {
+        const dx = (x - bx - ox) / rx, dy = (y - by) / ry;
+        const v = 1 - (dx * dx + dy * dy);
+        if (v > d) d = v;
+      }
+    }
+    d = Math.min(1, d * (y / h + 0.3));
+    if (d > BAYER[(y & 3) * 4 + (x & 3)] * 1.6 + 0.15) p.set(x, y, d > 0.75 ? '#9a98b0' : '#7a7890');
+  }
+  return p.canvas();
+}
 
 function buildStreet() {
   const cv = document.createElement('canvas');
@@ -103,6 +138,8 @@ function buildStreet() {
   for (let x = 0; x < far.width; x += 90) for (let i = 0; i < 26; i++) f.fillRect(x + 20 + i, GROUND_Y - 58 - Math.min(i, 26 - i), 50 - 2 * i < 0 ? 0 : 1, 1);
   Street.far = far;
 
+  Street.fog = fogPix();
+  Street.crowR = crowPix(1).canvas(); Street.crowL = crowPix(-1).canvas();
   for (let i = 0; i < 4; i++) Street.moths.push({ a: Math.random() * 6, r: 4 + Math.random() * 6, s: 0.05 + Math.random() * 0.08 });
 }
 
@@ -170,6 +207,18 @@ function updateStreet() {
     if (s.kid.x < 380) s.kid.dir = 1;
   }
   for (const m of s.moths) m.a += m.s;
+  // the crow screams once when you walk under it
+  if (!s.crow.cawed && Math.abs(s.px - s.crow.x) < 30) { s.crow.cawed = true; Audio.caw(); }
+  // after dark, your heart starts pounding near Oliver's house
+  if (G.state.lampsOn && G.scene === 'street') {
+    const d = Math.abs(s.px - STREET.doors.kidnapper);
+    if (d < 240 && --s.beatT <= 0) {
+      const near = 1 - d / 240;
+      Audio.heartbeat(0.12 + near * 0.35);
+      s.beatT = Math.round(70 - near * 32);
+    }
+  }
+  Light.glitchChance = G.state.lampsOn ? 0.003 : 0.0008;
   if (G.busy) return;
   const left = Input.held.left, right = Input.held.right;
   if (left || right) {
@@ -215,6 +264,9 @@ function drawStreet() {
     ctx.fillStyle = '#e8dcc0';
     for (const m of s.moths) ctx.fillRect(Math.round(jl.x - cam + Math.cos(m.a) * m.r), Math.round(jl.y + Math.sin(m.a * 1.7) * m.r * 0.7), 1, 1);
   }
+  // the crow on the wire, always watching you
+  const crowY = Math.round(GROUND_Y - 106 + Math.sin(((s.crow.x - 640) / 440) * Math.PI) * 18) - 8;
+  ctx.drawImage(s.px < s.crow.x ? Street.crowL : Street.crowR, Math.round(s.crow.x - cam - 5), crowY);
   if (s.kid.here) ctx.drawImage(ART.people.kid[s.kid.frame], Math.round(s.kid.x - cam), FEET_Y - 36);
   const img = (s.dir > 0 ? ART.people.officer : ART.people.officerL)[s.frame];
   ctx.drawImage(img, Math.round(s.px - 11 - cam), FEET_Y - 42);
@@ -222,12 +274,24 @@ function drawStreet() {
   // lights: windows and porch lamps, plus street lamps once they come on
   const lights = [];
   for (const L of Street.lights) lights.push({ ...L, x: L.x - cam });
-  if (G.state.lampsOn) for (const x of STREET.lamps) lights.push({ x: x + 13 - cam, y: 152 - 86, r: 70, i: 1, color: [255, 220, 150], squash: 1.3 });
+  if (G.state.lampsOn) for (const x of STREET.lamps) {
+    // the lamp outside Oliver's house can't stay on
+    const bad = x === 1010;
+    const i = bad ? (Math.random() < 0.12 ? 0.05 : Math.random() < 0.2 ? 0.5 : 1) : 1;
+    lights.push({ x: x + 13 - cam, y: 152 - 86, r: 70, i, color: [255, 220, 150], squash: 1.3 });
+  }
   if (G.state.flashlight) lights.push({ x: s.px - cam + s.dir * 8, y: FEET_Y - 28, r: 120, i: 1, cone: 0.32, dir: s.dir, color: [255, 245, 220], flicker: 1 });
   if (s.watcher) { const k = STREET.houses.find(h => h.id === 'kidnapper'); lights.push({ x: k.x + k.w - 35 - cam, y: GROUND_Y - 50, r: 24, i: 0.6, color: [160, 220, 120] }); }
   Light.lights = lights;
-  Light.ambient = lerp(0.18, 0.84, t);
+  // a faint glow around the officer, so you never lose yourself in the dark
+  lights.push({ x: s.px - cam, y: FEET_Y - 22, r: 34, i: 0.38, color: [190, 200, 230] });
+  Light.ambient = lerp(0.24, 0.85, t);
   Light.draw(G.frame);
+  // fog creeping along the ground, catching the moonlight, thicker once it's dark
+  ctx.globalAlpha = 0.07 + t * 0.13;
+  const fx = -Math.round(cam * 1.1 + G.frame * 0.15) % 640;
+  for (const off of [0, 640, 1280]) ctx.drawImage(Street.fog, fx + off - (fx > 0 ? 640 : 0), GROUND_Y - 22);
+  ctx.globalAlpha = 1;
   Light.post(G.frame);
 
   // what pressing A would do here

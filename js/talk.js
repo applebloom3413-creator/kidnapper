@@ -99,7 +99,12 @@ function drawUI() {
   const sp = SPEAKERS[box.who];
   drawText(ctx, sp.name, 14, 118, sp.color, '#000');
   const thought = box.who === 'you';
-  box.lines.forEach((l, i) => drawText(ctx, l, 14, 138 + i * 13, thought ? '#aeb8cc' : '#ece6f4', '#000'));
+  // Oliver's words don't sit still
+  const twitchy = box.who === 'kidnapper';
+  box.lines.forEach((l, i) => {
+    const jx = twitchy && Math.random() < 0.06 ? rand(-1, 1) : 0, jy = twitchy && Math.random() < 0.04 ? rand(-1, 1) : 0;
+    drawText(ctx, l, 14 + jx, 138 + i * 13 + jy, thought ? '#aeb8cc' : twitchy ? '#e2ecd8' : '#ece6f4', '#000');
+  });
   if (box.arrow && Math.floor(G.frame / 18) % 2 === 0) {
     ctx.fillStyle = GOLD_LT;
     for (let i = 0; i < 4; i++) ctx.fillRect(W - 20 + i, 170 + i, 7 - i * 2, 1);
@@ -225,6 +230,7 @@ function drawTalk() {
 // cut to a doorway conversation
 async function openTalk(house, kind, opts = {}) {
   Object.assign(Talk, { house, kind: null, show: 0, door: 0, sweat: [], twitch: 0 });
+  Light.glitchChance = kind === 'kidnapper' ? 0.012 : 0.001;
   await fadeOut(18);
   G.scene = 'talk';
   await fadeIn(18);
