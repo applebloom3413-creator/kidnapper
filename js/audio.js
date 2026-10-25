@@ -60,6 +60,10 @@ const Audio = {
     this.nextNote = ac.currentTime + 1;
   },
 
+  // go completely quiet whenever the game isn't on screen (app switched away, tab hidden, phone locked)
+  pause() { if (this.ac && this.ac.state === 'running') this.ac.suspend(); },
+  resume() { if (this.ac && this.ac.state === 'suspended') this.ac.resume(); },
+
   setMood(name, seconds = 3) {
     this.moodWanted = name;
     if (!this.ac) return;
