@@ -45,14 +45,17 @@
   #dpad[data-dir="left"] .tick.left { border-right-color: #b0a0c0; }
   #dpad[data-dir="right"] .tick.right { border-left-color: #b0a0c0; }
   .round {
-    position: absolute; width: 68px; height: 68px; border-radius: 50%;
+    position: absolute; width: 76px; height: 76px; border-radius: 50%;
     background: var(--btn); color: #8a7c98; font-weight: 800; font-size: 20px;
     display: flex; align-items: center; justify-content: center;
     box-shadow: inset 0 2px 0 var(--btn-hi), 0 4px 0 #000; touch-action: none;
   }
   #btn-a { right: 4%; top: calc(50% - 90px); color: #c06068; box-shadow: inset 0 2px 0 #3a1c24, 0 4px 0 #000, 0 0 0 2px var(--red); }
-  #btn-b { right: calc(4% + 80px); top: calc(50% - 46px); }
+  #btn-b { right: calc(4% + 92px); top: calc(50% - 40px); }
   .round.on { transform: translateY(3px); box-shadow: inset 0 2px 0 var(--btn-hi); }
+  /* an invisible ring around each button, so a near miss still counts */
+  .round::after { content: ''; position: absolute; inset: -14px; border-radius: 50%; }
+  #screen-wrap { touch-action: none; }
   .pill {
     position: absolute; top: calc(50% + 80px); left: 50%; transform: translateX(-50%);
     width: 80px; height: 24px; border-radius: 12px; background: var(--btn); color: var(--ink);
@@ -67,12 +70,12 @@
   @media (orientation: landscape) and (max-height: 520px) {
     #console { max-width: none; grid-template-columns: 1fr auto 1fr; grid-template-rows: 1fr; grid-template-areas: "left screen right"; align-items: center; }
     /* leave room on both sides for the thumbs */
-    #screen-wrap { height: auto; width: min(calc(100vw - 340px), calc((100vh - 28px) * 16 / 9)); }
+    #screen-wrap { height: auto; width: min(calc(100vw - 370px), calc((100vh - 28px) * 16 / 9)); }
     #controls { display: contents; }
     #dpad { position: relative; grid-area: left; left: 0; top: 0; justify-self: center; }
-    #right-btns { grid-area: right; position: relative; width: 156px; height: 180px; justify-self: center; }
-    #btn-a { right: 6px; top: 20px; }
-    #btn-b { right: 84px; top: 64px; }
+    #right-btns { grid-area: right; position: relative; width: 172px; height: 190px; justify-self: center; }
+    #btn-a { right: 8px; top: 16px; }
+    #btn-b { right: 92px; top: 66px; }
     .pill { top: auto; bottom: 0; }
   }
   @media (hover: hover) and (pointer: fine) {
@@ -96,7 +99,7 @@
       <div class="round" id="btn-b" data-btn="b">B</div>
       <div class="pill" data-btn="start">START</div>
     </div>
-    <div id="keys"><b>Arrow keys</b> walk &nbsp;·&nbsp; <b>A</b> knock / talk &nbsp;·&nbsp; hold <b>B</b> to hurry &nbsp;·&nbsp; <b>Enter</b> = START</div>
+    <div id="keys"><b>Arrow keys</b> walk &nbsp;·&nbsp; <b>A</b> or click the screen to knock / talk &nbsp;·&nbsp; hold <b>B</b> to hurry &nbsp;·&nbsp; game controllers work too</div>
   </div>
 </div>
 <script src="js/pixel.js"></script>

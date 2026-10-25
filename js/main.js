@@ -236,6 +236,8 @@ function bindDpad(el) {
 
 document.querySelectorAll('[data-btn]').forEach(el => bindButton(el, el.dataset.btn));
 bindDpad(document.getElementById('dpad'));
+// tapping the game picture itself counts as pressing A
+bindButton(document.getElementById('screen-wrap'), 'a');
 // silence when the game is hidden, so the music box can't follow you out of the app
 document.addEventListener('visibilitychange', () => { if (document.hidden) Audio.pause(); else Audio.resume(); });
 addEventListener('pagehide', () => Audio.pause());

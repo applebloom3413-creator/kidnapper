@@ -239,7 +239,7 @@ function nearestThing() {
   for (const hs of STREET.houses) list.push({ x: hs.doorWorldX, label: hs.id === 'home' ? 'GO IN' : 'KNOCK', script: () => STORY.door(hs.id) });
   if (s.kid.here) list.push({ x: s.kid.x + 11, label: 'TALK', script: () => STORY.kid() });
   list.push({ x: STREET.oldMailX, label: 'LOOK', script: () => STORY.mailbox() });
-  let best = null, bd = 13;
+  let best = null, bd = 22;   // generous: you don't have to stand exactly at the door
   for (const t of list) { const d = Math.abs(t.x - s.px); if (d < bd) { bd = d; best = t; } }
   return best;
 }

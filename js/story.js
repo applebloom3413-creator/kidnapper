@@ -25,7 +25,7 @@ const STORY = {
     await wait(30);
     await say('you', '(Ten kids missing in three weeks. Now whole families are disappearing. Even grown-ups.)');
     await say('you', "(Chief wants every door on Hollow Lane knocked on before dark. Let's get to it.)");
-    await say('you', '(Walk with LEFT and RIGHT. Press A to knock. Hold B to hurry.)');
+    await say('you', '(Walk with LEFT and RIGHT. Press A, or tap the screen, to knock and talk. Hold B to hurry.)');
     G.busy = false;
   },
 

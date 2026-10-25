@@ -12,13 +12,16 @@ ctx.imageSmoothingEnabled = false;
 
 const BUTTONS = ['up', 'down', 'left', 'right', 'a', 'b', 'start'];
 const Input = {
-  held: {}, pressed: {}, _raw: {}, _hits: {},
+  held: {}, pressed: {}, _raw: {}, _hits: {}, _pad: {},
   poll() {
+    const pad = readGamepad();
     for (const b of BUTTONS) {
+      if (pad[b] && !this._pad[b]) { this._hits[b] = true; Audio.unlock(); }
       this.pressed[b] = !!this._hits[b];
-      this.held[b] = !!this._raw[b];
+      this.held[b] = !!this._raw[b] || !!pad[b];
       this._hits[b] = false;
     }
+    this._pad = pad;
   },
   down(b) { if (!this._raw[b]) this._hits[b] = true; this._raw[b] = true; Audio.unlock(); },
   up(b) { this._raw[b] = false; },
@@ -31,6 +34,26 @@ const KEYMAP = {
   KeyB: 'b', KeyX: 'b', ShiftLeft: 'b', ShiftRight: 'b', Backspace: 'b', Escape: 'b',
   Enter: 'start',
 };
+// game controllers (a PS5 DualSense, Xbox pad, etc. connected over Bluetooth or USB).
+// Standard layout: 0 = Cross/A, 1 = Circle/B, 9 = Options/Start, 12-15 = D-pad.
+function readGamepad() {
+  const out = {};
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const gp of pads) {
+    if (!gp) continue;
+    const btn = i => gp.buttons[i] && gp.buttons[i].pressed;
+    const ax = gp.axes || [];
+    out.a = out.a || btn(0);
+    out.b = out.b || btn(1) || btn(2);
+    out.start = out.start || btn(9);
+    out.up = out.up || btn(12) || ax[1] < -0.5;
+    out.down = out.down || btn(13) || ax[1] > 0.5;
+    out.left = out.left || btn(14) || ax[0] < -0.5;
+    out.right = out.right || btn(15) || ax[0] > 0.5;
+  }
+  return out;
+}
+
 addEventListener('keydown', e => { const b = KEYMAP[e.code]; if (b) { Input.down(b); e.preventDefault(); } });
 addEventListener('keyup', e => { const b = KEYMAP[e.code]; if (b) { Input.up(b); e.preventDefault(); } });
 
