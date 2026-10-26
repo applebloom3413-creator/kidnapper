@@ -2,7 +2,9 @@
 background shows as a grey-and-white checkerboard, then shrink it to fit
 the game with the same moody shading as the masks.
 
-Usage: py -3 tools/cutout_drawing.py <screenshot> <out.png> <height> [top bottom]
+Usage: py -3 tools/cutout_drawing.py <screenshot> <out.png> <height> [top bottom] [box=l,t,r,b]
+
+Pass the same box for different expressions of one drawing so they line up exactly.
 """
 import sys
 from collections import deque
@@ -72,12 +74,24 @@ for y in range(h):
 alpha = alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
 
 box = alpha.getbbox()
+if len(sys.argv) > 6:
+    box = tuple(int(v) for v in sys.argv[6].split(','))   # same crop for every expression
 im, alpha = im.crop(box), alpha.crop(box)
 im.putalpha(alpha)
 im.save(out.replace('.png', '_full.png'))
 
 # shave the pale fringe left over from the checkerboard off the edges
 alpha = alpha.filter(ImageFilter.MinFilter(5))
+# below the head her body is all dark clothes, so any light specks down there
+# (around the shoulders and arms) are leftover checkerboard: clear them
+iw, ih = im.size
+ap2, ipx = alpha.load(), im.convert('RGB').load()
+for y in range(int(ih * 0.62), ih):
+    for x in range(iw):
+        r, g, b = ipx[x, y]
+        if (r + g + b) / 3 > 140:
+            ap2[x, y] = 0
+alpha = alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(3))
 # a light touch of mood: keep her colours (a little boost so they survive shrinking),
 # and just let the bottom sink a little into shadow
 rgb = ImageEnhance.Color(im.convert('RGB')).enhance(1.25)
@@ -89,9 +103,28 @@ nw = round(rgb.width * height / rgb.height)
 small = rgb.resize((nw, height), Image.LANCZOS).quantize(colors=64, dither=Image.Dither.NONE).convert('RGB')
 small_a = alpha.resize((nw, height), Image.LANCZOS).point(lambda v: 255 if v > 120 else 0)
 # a thin dark rim so the edges read cleanly against the dark doorway
+rim_a = small_a.filter(ImageFilter.MaxFilter(3))
+
+# the bottom of the drawing dissolves into the dark (dithered, to match the game's
+# pixel look) instead of ending in a hard straight edge
+BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
+FADE = max(1, int(height * 0.18))
+sp, sa, ra = small.load(), small_a.load(), rim_a.load()
+for y in range(height - FADE, height):
+    t = (y - (height - FADE)) / FADE                     # 0 at the top of the fade -> 1 at the bottom
+    for x in range(nw):
+        r, g, b = sp[x, y]
+        k = 1 - t * 0.75
+        sp[x, y] = (int(r * k + 10 * (1 - k)), int(g * k + 8 * (1 - k)), int(b * k + 18 * (1 - k)))
+        if t * t > (BAYER[(y % 4) * 4 + (x % 4)] + 0.5) / 16:
+            sa[x, y] = 0; ra[x, y] = 0
+    for x in range(nw):                                  # the rim only belongs on the sides, not across the fade
+        if sa[x, y] == 0 and ra[x, y] and y > height - FADE // 2:
+            ra[x, y] = 0
+
 res = Image.new('RGBA', (nw, height), (0, 0, 0, 0))
 rim = Image.new('RGBA', (nw, height), (14, 10, 22, 255))
-res.paste(rim, (0, 0), small_a.filter(ImageFilter.MaxFilter(3)))
+res.paste(rim, (0, 0), rim_a)
 face = Image.new('RGBA', (nw, height), (0, 0, 0, 0))
 face.paste(small, (0, 0), small_a)
 res.alpha_composite(face)
