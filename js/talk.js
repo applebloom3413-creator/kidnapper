@@ -198,7 +198,7 @@ function drawTalk() {
     const sway = Math.round(Math.sin(G.frame / 40) * 1);
     const sil = ART.people['sil_' + k];
     ctx.globalAlpha = Talk.show;
-    if (sil) ctx.drawImage(sil, 85 + sway, 10 + rise);
+    if (sil && k !== 'ozzie') ctx.drawImage(sil, 85 + sway, 10 + rise);
     ctx.globalAlpha = 1;
   }
   Light.lights = lights;
@@ -210,7 +210,11 @@ function drawTalk() {
     const rise = Math.round((1 - Talk.show) * 20);
     const sway = Math.round(Math.sin(G.frame / 40) * 1);
     ctx.globalAlpha = Talk.show;
-    if (k === 'ozzie') ctx.drawImage(ART.masks.ozzie, 124 + sway, 30 + rise);
+    if (k === 'ozzie') {
+      // Maddie's drawing of Ozzie, standing in her doorway
+      const img = Talk.expr === 'worried' ? ART.portraits.ozzieWorried : ART.portraits.ozzie;
+      ctx.drawImage(img, Math.round(160 - img.width / 2) + sway, 2 + rise);   // high enough that her outfit shows above the text box
+    }
     if (k === 'jeffery') {
       const tw = Talk.twitch > 0 ? (Talk.twitch % 4 < 2 ? -1 : 1) : 0;
       ctx.drawImage(ART.masks.jeffery, 113 + sway + tw, 22 + rise);
@@ -236,7 +240,7 @@ function drawTalk() {
 
 // cut to a doorway conversation
 async function openTalk(house, kind, opts = {}) {
-  Object.assign(Talk, { house, kind: null, show: 0, door: 0, sweat: [], twitch: 0 });
+  Object.assign(Talk, { house, kind: null, show: 0, door: 0, sweat: [], twitch: 0, expr: null });
   Light.glitchChance = kind === 'kidnapper' ? 0.012 : 0.001;
   await fadeOut(18);
   G.scene = 'talk';

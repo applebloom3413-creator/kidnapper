@@ -6,7 +6,7 @@ A creepy little side-view mystery game. Kids have been going missing on Hollow L
 and you're the officer knocking on every door to find out who's lying.
 
 Story, characters and the real handmade masks are by two very brave siblings.
-The masks were photographed and turned into pixel art (`tools/make_masks.py`);
+Ozzie is the artist's own drawing (cut out with `tools/cutout_drawing.py`); Jeffery's real mask was photographed and turned into pixel art (`tools/make_masks.py`);
 everything else is drawn in code. No downloads, no build step.
 
 ## Play it on this PC
@@ -27,6 +27,6 @@ Then open http://localhost:8643. Arrow keys walk, **A** knocks / talks, hold **B
 | `js/art.js` | The officer, the Lollipop Kid, the turtle mask, houses and props |
 | `js/light.js` | Darkness, light pools, flashlight, grain and vignette |
 | `js/audio.js` | The music box, drone, wind, knocks and footsteps |
-| `art/` | Ozzie's and Jeffery's masks, pixelated from photos |
+| `art/` | Ozzie (her own drawing, normal + worried), Jeffery's mask pixelated from a photo, and the original photo version of Ozzie's mask |
 
 Add `?dev` to the URL to load the test helpers in `tools/dev.js`.

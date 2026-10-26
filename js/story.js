@@ -57,9 +57,11 @@ const STORY = {
       const pick = await choose(opts);
       if (pick === 0) {
         asked.kids = true;
+        Talk.expr = 'worried';
         await say('ozzie', "Yeah... it's awful, isn't it? First it was those two kids selling cookies door to door.");
         await say('ozzie', "Then more kids. Now I hear it's whole families. Even grown-ups.");
         await say('ozzie', "I've started locking my door at night. Just in case. Hehe... silly, right?");
+        Talk.expr = null;
       } else if (pick === 1) {
         asked.neighbors = true;
         await say('ozzie', "Mm, most people on Hollow Lane are really nice.");

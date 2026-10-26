@@ -93,7 +93,7 @@ if __name__ == '__main__':
     sheet = Image.new('RGBA', (420, 160), (24, 20, 34, 255))
     x = 4
     for name, cfg in MASKS.items():
-        m = build(name, cfg)
+        m = build(name + '_photo', cfg)
         sheet.alpha_composite(m, (x, 4))
         x += m.width + 8
         print(name, m.size)

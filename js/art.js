@@ -328,8 +328,12 @@ async function buildArt() {
   ART.people.officer = ART.people.officer.map(p => p.canvas());
   ART.people.kid = [0, 1, 2, 3].map(f => lollipopKidSprite(f).canvas());
 
-  const [ozzie, jeffery] = await Promise.all([loadImage('art/ozzie.png'), loadImage('art/jeffery.png')]);
-  ART.masks.ozzie = ozzie;
+  // Ozzie is Maddie's own drawing; Jeffery's mask is still the pixelated photo of her real one.
+  // (The photo version of Ozzie's mask is kept in art/ozzie_photo.png.)
+  const [ozzie, ozzieWorried, jeffery] = await Promise.all([
+    loadImage('art/ozzie_drawn.png'), loadImage('art/ozzie_drawn_worried.png'), loadImage('art/jeffery_photo.png'),
+  ]);
+  ART.portraits = { ozzie, ozzieWorried };
   ART.masks.jeffery = jeffery;
   ART.masks.kidnapper = turtleMaskPix().canvas();
   ART.masks.partyhat = partyHatPix(48, 70).canvas();
